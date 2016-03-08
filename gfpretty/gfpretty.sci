@@ -7,7 +7,8 @@ function gfpretty(polyvect,str,n)
 //gfpretty(polyvect, str) displays GF polynomial with the polynomial variable
 //specified in the string variable str.
 //
-//gfpretty(polyvect, str, n) uses screen width n.
+//gfpretty(polyvect, str, n) uses screen width n. 
+// Written by Nikita Roseann Pinto.
 
 // Input checking
 
