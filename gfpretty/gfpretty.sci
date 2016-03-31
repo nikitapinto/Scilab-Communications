@@ -1,117 +1,116 @@
+
 funcprot(0);
-function gfpretty(polyvect,str,n)
+
+function gfpretty_mod(polyvect,variable,n)
+
 //gfpretty(polyvect) displays the GF polynomial polyvect in a traditional format. polyvect is a row vector that
 //specifies the polynomial coefficients in order of ascending powers. Terms whos coefficients are zero
 //are eliminated from the output.
-//
-//gfpretty(polyvect, str) displays GF polynomial with the polynomial variable
+//gfpretty(polyvect, variable) displays GF polynomial with the polynomial variable
 //specified in the string variable str.
-//
 //gfpretty(polyvect, str, n) uses screen width n. 
-// Written by Nikita Roseann Pinto.
+// Written by Nikita Roseann Pinto
 
-// Input checking
+// Input Checking 
 
-// Checking for str
+// Check variable
+
 if (argn(2) < 2) then
-   str = 'X';
-elseif (isempty(str) | (type(str)~=10))
-   error('str is an invalid string')        
+   variable = 'X';
+elseif (isempty(variable) | (type(variable)~=10))
+   error('variable must be a non-empty string')        
 end
-    
-// Checking for n
-if (argn(2) < 3) then
-   n = 79;
-end
-    
-// Checking for polyvect
+
+// Check polyvect 
 if (isempty(polyvect) | (size(polyvect,1)~=1) | (ndims(polyvect) ~=2 )) then
     error('polyvect must be a row vector')  
 end
 
-chk_test = (or(floor(polyvect)~=polyvect) | or(~isreal(polyvect)) | or(polyvect<0));
-if (chk_test) then
-    error('Coefficients of polyvect must be real, positive integer values')
+if ((or(floor(polyvect)~=polyvect) | or(~isreal(polyvect)) | or(polyvect<0))) then
+    error('Coefficients of a must be real, positive integer values')
 end
 
+// Check screen width n 
+if (argn(2) < 3) then
+   n = 79;
+end
 
-//% initial condition
-lstr = [];
-ustr = [];
-polyvect = gftrunc(polyvect);
+if (~or(type(n)==[1 5 8]) | prod(size(n))~=1 | floor(n)~= n | n<0 ) then
+    error('n must a positive scalar number')
+end
+    
 
-//% assign string based on the GF polynomial
-if length(polyvect) <= 1
-    lstr = string(polyvect);
-else
-    for i=1:length(polyvect)
-        if polyvect(i) ~= 0
-//            % the first one is constant
-            if i == 1
-                str1 = string(polyvect(1));
-            else
-                if abs(polyvect(i)) == 1
-                    str1 = str;
-                else
-                    str1 = [string(polyvect(i)), ' ', str];
-                end;
-            end;
-//            % the first assignment without '+'
-            if isempty(lstr)
-                lstr = str1;
-                spa = size(str1,2);
-            else
-                lstr = [lstr, ' ','+',' ', str1]; 
-                spa = size(strsplit(strcat(str1)),1)+3;
-            end;
-//            % match the power term
-            if i > 2
-                pow = string(i-1);
-            else
-                pow = string([]);
-            end
-            split_pow = strsplit(pow);
-            length_pow = size(split_pow,1);
-//            % set the string to be a same length
-            ustr = [ustr,repmat(' ',1,spa),split_pow']
-//            ustr = [ustr, char(ones(1,spa)*32), pow]; 
-            lstr = [lstr, repmat(' ',1,length_pow) ]
-//            lstr = [lstr, char(ones(1,length(pow))*32)]; 
-        end;
-    end;
-end;
+// Initialize lower and upper strings 
+lstr = '';
+ustr = '';
 
-// display polynomial
-if size(lstr,2) < n
-//     under limit
-    spa = floor((n-size(lstr,2))/2);
-    pow = repmat(' ',1,spa);
-    lstr = [pow, lstr];
-    ustr = [pow, ustr];
-else
-//    over the limit
-    while(size(lstr,2) >= n)
-        temp = size(lstr,2);
-//        ind = strindex(lstr, '+');
-        ind = find(lstr == '+');
-        sub_ind_1 = find(ind < 79);
-        sub_ind = sub_ind_1($);
+// Loop through elements of polyvect
+for  i = 1:length(polyvect)
+	coeff = polyvect(i);
+	power = (i-1);
+	var = variable;
+
+	
+	
+	if (coeff ~=0) then
+		
+// Generate lower string using coefficients and variables.		
+		if (i == 1) then
+			var = '';
+			lstr = string(coeff);
+		else
+		
+        lstr1 = string(coeff);
         
-        disp(' ')
-        disp(ustr(1:max(ind(sub_ind)-1)));
-        disp(lstr(1:max(ind(sub_ind)-1)));
-//        % add space for indent
-        ustr = ['          ',ustr(ind(sub_ind):size(ustr,2))];
-        lstr = ['          ',lstr(ind(sub_ind):size(lstr,2))];
-        if ( temp == size(lstr,2) )
-            break;
-        end
-    end;
-end;
 
-disp(' ')
-disp(ustr);
-disp(lstr);
+        
+        if isempty(lstr) then
+            lstr = lstr + lstr1 + var;
+        else
+        lstr = lstr + ' ' + '+' + ' ' + lstr1 + var; 
+        end		
+    end
+	end
+// Generate upper string using power and length of lower string
+		
+		if (power == 0) then
+			powstr = ' ';
+			ustr = strcat(repmat(' ',1,size(strsplit(lstr),1))) + powstr;
+		else
+			if (power == 1 ) then
+				powstr = ' ';
+			else
+				powstr = string(power);
+			end
+			strlendiff = size(strsplit(lstr),1) - size(strsplit(ustr),1);
+			ustr = ustr + strcat(repmat(' ',1,strlendiff)) + powstr;		
+		end
+		
 
- 
+end
+
+// script to limit number of characters per line
+
+if (size(strsplit(lstr),1) > n) then
+	// divide into sub strings of length 79
+	div_idx = size(strsplit(lstr),1) / n;
+	ustrsplit = strsplit(ustr);
+	lstrsplit = strsplit(lstr);
+	
+	g = i*n + 1;
+	for i = 0:div_idx-1
+		g = i*n + 1;
+		disp(strcat(ustrsplit(g:g+(n-1))))
+		disp(strcat(lstrsplit(g:g+(n-1))))
+	end
+	// last part of the strings outside the loop
+    h = div_idx * n;
+    disp(strcat(ustrsplit(h:$)))
+    disp(strcat(lstrsplit(h:$)))
+else
+// Display lower and upper strings of polynpmial
+	disp(ustr);
+	disp(lstr);
+end
 endfunction
+
