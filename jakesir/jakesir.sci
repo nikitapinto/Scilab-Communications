@@ -19,11 +19,10 @@ function h = jakesir(fd,t)
     end
 
 
-    // Compute x-1/4 J1/4(x) and peak value
-    nuparam = 1/4;
+    // Compute x^-1/4, J1/4(x) and peak value 
     absx = abs(2*%pi*fd*t);
-    JFpeak = ((1/2)^nuparam) / gamma(nuparam+1);
-    JF = real(absx .^ -nuparam .* besselj(nuparam,absx));
+    JFpeak = ((1/2)^(1/4)) / gamma(5/4);
+    JF = real(absx .^ -1/4 .* besselj(1/4,absx));
     JF(isnan(JF)) = JFpeak;
 
     // Normalized Impulse Response
@@ -32,3 +31,4 @@ function h = jakesir(fd,t)
     h = h1 ./ sqrt(sum(abs(h1).^2));
 
 endfunction
+
